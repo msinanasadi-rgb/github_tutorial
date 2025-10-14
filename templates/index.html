@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Simple Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Simple Store</h1>
+      <form class="add-form" action="{{ url_for('add_item') }}" method="post">
+        <input type="text" name="title" placeholder="Title" required />
+        <input type="text" name="notes" placeholder="Notes (optional)" />
+        <button type="submit">Add</button>
+      </form>
+
+      <ul id="items" class="items">
+        {% for item in items %}
+        <li data-id="{{ item.id }}">
+          <div class="item">
+            <div class="meta">
+              <strong>{{ item.title }}</strong>
+              {% if item.notes %}<span class="notes">{{ item.notes }}</span>{% endif %}
+            </div>
+            <button class="delete">Delete</button>
+          </div>
+        </li>
+        {% else %}
+        <li class="empty">No items yet. Add one above.</li>
+        {% endfor %}
+      </ul>
+    </main>
+
+    <script>
+      document.addEventListener('click', async (e) => {
+        if (e.target.matches('.delete')) {
+          const li = e.target.closest('li[data-id]');
+          const id = li?.dataset.id;
+          if (!id) return;
+          const res = await fetch(`/api/items/${id}`, { method: 'DELETE' });
+          if (res.ok) li.remove();
+        }
+      });
+    </script>
+  </body>
+</html>
